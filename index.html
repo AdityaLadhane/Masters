@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Career Explorer — Korea & Taiwan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1b2d;
+  --navy2: #162338;
+  --navy3: #1e3050;
+  --accent: #3b82f6;
+  --accent2: #1d4ed8;
+  --gold: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --purple: #8b5cf6;
+  --teal: #14b8a6;
+  --orange: #f97316;
+  --white: #ffffff;
+  --text1: #f1f5f9;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --card: rgba(255,255,255,0.04);
+  --card-hover: rgba(255,255,255,0.08);
+  --sidebar-w: 220px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --font: 'Outfit', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body { font-family: var(--font); background: var(--navy); color: var(--text1); min-height: 100vh; display: flex; overflow-x: hidden; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: var(--navy2);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; z-index: 100; transition: transform 0.3s;
+}
+.sidebar-brand {
+  padding: 20px 18px 14px; border-bottom: 1px solid var(--border);
+}
+.brand-flag { font-size: 18px; letter-spacing: 2px; margin-bottom: 6px; }
+.brand-title { font-size: 13px; font-weight: 600; color: var(--text1); letter-spacing: 0.02em; }
+.brand-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.nav { padding: 12px 10px; flex: 1; }
+.nav-section { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 8px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+  border-radius: var(--radius-sm); cursor: pointer; margin-bottom: 2px;
+  font-size: 13px; color: var(--text2); transition: all 0.15s; border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--card-hover); color: var(--text1); }
+.nav-item.active { background: rgba(59,130,246,0.15); color: var(--accent); border-color: rgba(59,130,246,0.25); font-weight: 500; }
+.nav-icon { width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid var(--border); }
+.sidebar-footer p { font-size: 11px; color: var(--text3); line-height: 1.5; }
+.sidebar-footer strong { color: var(--accent); }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+.section-wrap { display: none; padding: 28px 28px 60px; max-width: 960px; }
+.section-wrap.active { display: block; }
+
+/* SECTION HEADER */
+.section-header { margin-bottom: 24px; }
+.section-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 20px; padding: 3px 10px; margin-bottom: 10px; }
+.section-title { font-size: 26px; font-weight: 700; color: var(--text1); letter-spacing: -0.02em; }
+.section-sub { font-size: 14px; color: var(--text2); margin-top: 6px; line-height: 1.5; }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; transition: border-color 0.15s, background 0.15s; cursor: pointer; }
+.card:hover { background: var(--card-hover); border-color: rgba(255,255,255,0.14); }
+.card.active { border-color: var(--accent); background: rgba(59,130,246,0.08); }
+.pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; display: inline-block; }
+.pill-green { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+.pill-blue { background: rgba(59,130,246,0.15); color: #93c5fd; }
+.pill-amber { background: rgba(245,158,11,0.15); color: #fcd34d; }
+.pill-red { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.pill-purple { background: rgba(139,92,246,0.15); color: #c4b5fd; }
+.pill-teal { background: rgba(20,184,166,0.15); color: #5eead4; }
+
+/* BARS */
+.bar-track { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; flex: 1; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+/* TABS */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: 1px solid var(--border); color: var(--text2); background: var(--card); transition: all 0.15s; }
+.tab:hover { color: var(--text1); border-color: rgba(255,255,255,0.2); }
+.tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* GRID LAYOUTS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px; }
+
+/* DETAIL PANEL */
+.detail-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 16px; }
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+/* SCORE CHIPS */
+.score-chip { text-align: center; }
+.score-num { font-size: 24px; font-weight: 700; font-family: var(--mono); }
+.score-lab { font-size: 10px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* MONEY CARDS */
+.money-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; }
+.money-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.money-val { font-size: 15px; font-weight: 600; color: var(--text1); font-family: var(--mono); }
+.money-inr { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* UNI CARD */
+.uni-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: border-color 0.15s; margin-bottom: 8px; }
+.uni-card:hover { border-color: rgba(255,255,255,0.18); }
+.uni-card.open { border-color: var(--accent); }
+.uni-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; flex-wrap: wrap; }
+.uni-body { display: none; border-top: 1px solid var(--border); padding: 16px; }
+.uni-card.open .uni-body { display: block; }
+.uni-chevron { margin-left: auto; color: var(--text3); font-size: 12px; transition: transform 0.2s; }
+.uni-card.open .uni-chevron { transform: rotate(180deg); }
+.chance-bar-wrap { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.chance-val { font-size: 20px; font-weight: 700; font-family: var(--mono); min-width: 48px; }
+
+/* SCHOLARSHIP */
+.sch-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+.sch-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px; cursor: pointer; }
+.sch-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.sch-body { display: none; border-top: 1px solid var(--border); padding: 16px; }
+.sch-card.open .sch-body { display: block; }
+
+/* COUNTRY COMPARISON */
+.country-tab-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 20px; }
+.ctab { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 10px; cursor: pointer; text-align: center; transition: all 0.15s; position: relative; }
+.ctab:hover { background: var(--card-hover); }
+.ctab.active { border-color: var(--accent); background: rgba(59,130,246,0.1); }
+.ctab-flag { font-size: 24px; margin-bottom: 4px; }
+.ctab-name { font-size: 13px; font-weight: 600; color: var(--text1); }
+.ctab-score { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.recommended-badge { position: absolute; top: -1px; right: 8px; background: var(--green); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 6px; border-radius: 0 0 6px 6px; }
+
+/* TAGS */
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text2); }
+
+/* INFO BOXES */
+.info-box { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+.info-title { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.info-list { list-style: none; }
+.info-list li { font-size: 12px; color: var(--text2); padding: 3px 0; display: flex; gap: 6px; line-height: 1.4; }
+.info-list li::before { content: '·'; color: var(--text3); flex-shrink: 0; }
+
+/* CONSULTANT NOTE */
+.consultant-note { border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; line-height: 1.6; margin-top: 12px; }
+.cn-green { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #6ee7b7; }
+.cn-blue { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; }
+.cn-amber { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); color: #fcd34d; }
+
+/* STEP LIST */
+.step-list { list-style: none; }
+.step-list li { display: flex; gap: 10px; margin-bottom: 8px; font-size: 12px; color: var(--text2); line-height: 1.5; }
+.step-num { width: 20px; height: 20px; border-radius: 50%; background: rgba(59,130,246,0.2); color: var(--accent); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+/* HAMBURGER */
+.hamburger { display: none; position: fixed; top: 14px; right: 16px; z-index: 200; background: var(--navy2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; cursor: pointer; font-size: 16px; color: var(--text1); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hamburger { display: block; }
+  .section-wrap { padding: 20px 16px 60px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .country-tab-grid { grid-template-columns: repeat(2,1fr); }
+  .grid-auto { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .country-tab-grid { grid-template-columns: 1fr 1fr; }
+  .grid-auto { grid-template-columns: 1fr; }
+}
+
+/* UTILITY */
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 11px; }
+.text-muted { color: var(--text2); }
+.text-dim { color: var(--text3); }
+.text-accent { color: var(--accent); }
+.text-green { color: var(--green); }
+.text-gold { color: var(--gold); }
+.text-red { color: var(--red); }
+.fw-600 { font-weight: 600; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; }
+.gap-6 { gap: 6px; }
+.gap-8 { gap: 8px; }
+.gap-10 { gap: 10px; }
+.gap-12 { gap: 12px; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-between { justify-content: space-between; }
+.flex-1 { flex: 1; }
+.overflow-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-flag">🇰🇷 🇹🇼</div>
+    <div class="brand-title">MS Career Explorer</div>
+    <div class="brand-sub">ECE → SoC / Embedded AI</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Sections</div>
+    <div class="nav-item active" onclick="showSection('specs')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      Specialisations
+    </div>
+    <div class="nav-item" onclick="showSection('countries')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+      Country Comparison
+    </div>
+    <div class="nav-item" onclick="showSection('unis')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Universities
+    </div>
+    <div class="nav-item" onclick="showSection('scholarships')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Scholarships
+    </div>
+    <div class="nav-section" style="margin-top:8px">Quick Stats</div>
+    <div style="padding:8px 10px;font-size:11px;color:var(--text3);line-height:1.8">
+      <div>KGSP stipend: <span style="color:var(--green);font-weight:600">₹55k/mo</span></div>
+      <div>MEXT stipend: <span style="color:var(--gold);font-weight:600">₹83k/mo</span></div>
+      <div>MOE stipend: <span style="color:var(--accent);font-weight:600">₹52k/mo</span></div>
+      <div>Target start: <span style="color:var(--text2);font-weight:600">Sep 2027</span></div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <p>Specialisation: <strong>SoC Architecture & Embedded AI</strong><br>Profile: ECE, Pune · 7-8 CGPA</p>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 1: SPECIALISATIONS
+═══════════════════════════════════════════════════ -->
+<div class="section-wrap active" id="sec-specs">
+  <div class="section-header">
+    <div class="section-tag">Step 1</div>
+    <h1 class="section-title">Choose Your Specialisation</h1>
+    <p class="section-sub">All MS specialisations available for your ECE profile — scored on fit, salary, and future demand. Click any card to explore.</p>
+  </div>
+
+  <div class="grid-auto mb-16" id="spec-grid"></div>
+  <div id="spec-detail" style="display:none"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 2: COUNTRY COMPARISON
+═══════════════════════════════════════════════════ -->
+<div class="section-wrap" id="sec-countries">
+  <div class="section-header">
+    <div class="section-tag">Step 2</div>
+    <h1 class="section-title">Compare Destinations</h1>
+    <p class="section-sub">Six countries evaluated for SoC/Embedded AI MS — scores, funding, industry pipelines, and honest consultant notes.</p>
+  </div>
+  <div class="country-tab-grid" id="country-tabs"></div>
+  <div id="country-detail"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 3: UNIVERSITIES
+═══════════════════════════════════════════════════ -->
+<div class="section-wrap" id="sec-unis">
+  <div class="section-header">
+    <div class="section-tag">Step 3</div>
+    <h1 class="section-title">Target Universities</h1>
+    <p class="section-sub">Every university in South Korea and Taiwan for your specialisation — with tier, admission odds, strategy, and scholarship eligibility.</p>
+  </div>
+  <div class="flex gap-8 mb-16 flex-wrap">
+    <div class="tabs" id="uni-country-tabs">
+      <div class="tab active" onclick="setUniCountry('kr',this)">🇰🇷 South Korea</div>
+      <div class="tab" onclick="setUniCountry('tw',this)">🇹🇼 Taiwan</div>
+    </div>
+    <div class="tabs" id="uni-filter-tabs"></div>
+  </div>
+  <div id="uni-list"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECTION 4: SCHOLARSHIPS
+═══════════════════════════════════════════════════ -->
+<div class="section-wrap" id="sec-scholarships">
+  <div class="section-header">
+    <div class="section-tag">Step 4</div>
+    <h1 class="section-title">Scholarships & Funding</h1>
+    <p class="section-sub">Every scholarship available to you — amounts in INR, eligibility, documents required, step-by-step process, and your CGPA eligibility check.</p>
+  </div>
+  <div class="tabs mb-20" id="sch-country-tabs">
+    <div class="tab active" onclick="setSchCountry('kr',this)">🇰🇷 South Korea</div>
+    <div class="tab" onclick="setSchCountry('tw',this)">🇹🇼 Taiwan</div>
+  </div>
+  <div id="sch-list"></div>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════ NAVIGATION ═══════════════════════════════ */
+const sections = { specs:'sec-specs', countries:'sec-countries', unis:'sec-unis', scholarships:'sec-scholarships' };
+function showSection(id) {
+  document.querySelectorAll('.section-wrap').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item')[Object.keys(sections).indexOf(id)].classList.add('active');
+  if (window.innerWidth < 768) document.getElementById('sidebar').classList.remove('open');
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+/* ═══════════════════════════════ DATA ═══════════════════════════════ */
+
+/* --- SPECIALISATIONS --- */
+const specs = [
+  { id:'soc', title:'SoC Architecture & Embedded AI', short:'Design chips for AI, mobile & EVs', recommended:true, verdict:'best', verdictLabel:'Best fit for you', salary:'₹40–80L by 30', salaryPeak:'₹1Cr+ by 35', fit:95, salary_score:90, future:98, difficulty:70, desc:'System-on-Chip architecture means designing how an entire chip is organised — processors, memory, interconnects, power — rather than one block deeply. Embedded AI adds the layer of optimising hardware to run neural networks efficiently. This is the fastest-growing area in semiconductors right now and aligns perfectly with your embedded systems background, management instinct, and interest in AI chips, EVs, and 5G simultaneously.', pros:['Directly builds on your embedded systems internship','Natural path to Technical Lead → Engineering Manager','Relevant to AI chips, EVs, and 5G all at once','KAIST and SKKU have world-class labs in this area','Highest demand in India semiconductor mission right now'], cons:['Broader than pure design — needs both HW and SW understanding','Takes longer to become a deep specialist'], universities:['KAIST — SoC Design Lab','SKKU — Samsung co-research labs','NYCU — MediaTek AI chip pipeline'], tags:['AI chips','EV systems','5G SoC','NPU design','RISC-V','ARM cores'], companies:['Qualcomm','MediaTek','Samsung LSI','Apple Silicon','Tata Semiconductor'] },
+  { id:'vlsi', title:'VLSI Digital Design', short:'RTL, logic synthesis, chip implementation', verdict:'good', verdictLabel:'Strong option', salary:'₹35–70L by 30', salaryPeak:'₹1–1.5Cr at peak', fit:75, salary_score:92, future:85, difficulty:85, desc:'The traditional core of chip design — writing RTL in Verilog/VHDL, synthesising logic, running timing analysis. The highest individual contributor salary ceiling in electronics. However it is deeply specialist work — given your management instinct, this path keeps you in pure IC work for 8-10 years before any team leadership. Still very strong if you love the craft.', pros:['Highest salary ceiling of any hardware specialisation','Massive demand — India has a severe VLSI talent shortage','Korea and Taiwan are the global hub for this','NYCU and KAIST are top-tier for VLSI specifically'], cons:['Very individual contributor focused — management path is slow','Requires deep EDA tool expertise (Cadence, Synopsys)','Less alignment with your management instinct at 30'], universities:['NYCU — best in Asia for VLSI','KAIST — strong RTL research','NTHU — semiconductor devices'], tags:['Verilog','VHDL','RTL design','Synthesis','Timing analysis','DFT'], companies:['Intel','Qualcomm','TSMC','MediaTek','Cadence','Synopsys'] },
+  { id:'embedded', title:'Advanced Embedded Systems', short:'RTOS, firmware, IoT, automotive', verdict:'good', verdictLabel:'Natural extension', salary:'₹25–50L by 30', salaryPeak:'₹60–80L at peak', fit:80, salary_score:65, future:78, difficulty:55, desc:'A direct continuation of your internship work, but at a research level — real-time operating systems, safety-critical systems, automotive ECUs, IoT architecture. Zero learning curve on entry. Best if you love the hardware-software interface and want to work in automotive or industrial.', pros:['Zero learning curve — you already do this','Strong fit with automotive (Bosch, Continental, Hyundai)','Good WLB in embedded domains','Easier MS admission — clear research angle'], cons:['Lower salary ceiling than VLSI/SoC','Less alignment with AI chip excitement you mentioned','Korean universities slightly less strong here vs US/Germany'], universities:['KAIST — cyber-physical systems','Yonsei — IoT research','SKKU — automotive electronics'], tags:['RTOS','FreeRTOS','Linux drivers','CAN bus','AUTOSAR','IoT'], companies:['Bosch India','Continental','Hyundai Mobis','TI','NXP','Texas Instruments'] },
+  { id:'memory', title:'Memory Design & Architecture', short:'DRAM, NAND, emerging memory technologies', verdict:'good', verdictLabel:'High demand niche', salary:'₹35–65L by 30', salaryPeak:'₹80L–1Cr at peak', fit:70, salary_score:85, future:88, difficulty:80, desc:'A highly specialised niche — Korea is the global capital of memory chips. Samsung and SK Hynix together control 70%+ of DRAM. Emerging memory (MRAM, PCM, ReRAM) is exploding with AI workload demands. Very high demand, very low supply of engineers.', pros:['Korea is the global capital of memory — Samsung and SK Hynix recruit directly','Emerging memory is the next AI infrastructure bottleneck','Very few engineers specialise here — high scarcity premium','KAIST and POSTECH have strong memory research groups'], cons:['Very narrow — limits your mobility outside memory companies','Highly specialised — takes 2-3 years to become useful in industry','Less variety in day-to-day work'], universities:['KAIST — memory architecture lab','POSTECH — semiconductor devices','SKKU — Samsung memory pipeline'], tags:['DRAM','NAND flash','HBM','MRAM','PCM','Storage class memory'], companies:['Samsung Memory','SK Hynix','Micron India','Western Digital','Kioxia'] },
+  { id:'rf', title:'RF & Communications Systems', short:'5G/6G chip design, antenna, wireless', verdict:'maybe', verdictLabel:'Consider carefully', salary:'₹30–60L by 30', salaryPeak:'₹70–90L at peak', fit:60, salary_score:78, future:80, difficulty:88, desc:'The physics-heavy specialisation — electromagnetic waves, antenna design, RF circuits, transceiver architecture. Korea and Taiwan are strong here due to 5G infrastructure buildout. However this is the most mathematics-intensive option and requires a genuine love of EM theory. Your embedded background is more digital/software-adjacent — this would require significant retooling.', pros:['5G and 6G rollout creates sustained demand through 2035','Qualcomm, Ericsson, Nokia hire RF engineers heavily','Korea investing massively in 6G research (government-funded)'], cons:['Requires heavy EM theory — significant reskilling from your background','More niche than SoC — fewer companies hire for pure RF','Less alignment with your management instinct'], universities:['KAIST — wireless systems lab','NYCU — RF and microwave','Yonsei — communications engineering'], tags:['5G NR','Antenna design','OFDM','MIMO','mmWave','Transceiver IC'], companies:['Qualcomm RF','Ericsson','Nokia','Samsung Networks','Intel 5G'] },
+  { id:'power', title:'Power Electronics & EV Systems', short:'EV drivetrains, converters, power ICs', verdict:'maybe', verdictLabel:'EV wave play', salary:'₹25–45L by 30', salaryPeak:'₹60–80L at peak', fit:65, salary_score:62, future:85, difficulty:65, desc:'A specialisation riding the EV supercycle — designing power converters, motor drives, battery management systems, and power management ICs. Korea is strong here via Hyundai and LG Energy. The salary ceiling is lower than digital/VLSI paths and the work is more physics and power electronics focused than digital design.', pros:['EV industry is a 10-year megatrend — massive job creation','India EV sector growing rapidly — Tata, Ola, Ather','Lower competition than VLSI for MS admission','Hyundai and LG Energy recruit from Korean universities directly'], cons:['Lower salary ceiling than VLSI or SoC paths','Power electronics is quite different from your embedded background','Less globally mobile than digital chip design'], universities:['KAIST — power electronics lab','Yonsei — EV systems research','SKKU — energy systems'], tags:['BLDC motors','DC-DC converters','BMS','GaN/SiC','PMSM drives','Inverter design'], companies:['Hyundai Mobis','LG Energy','Tata Motors','Ola Electric','ABB','Bosch India'] },
+  { id:'ai_hw', title:'AI Hardware & Neuromorphic', short:'NPU design, hardware ML acceleration', verdict:'good', verdictLabel:'Future-proof bet', salary:'₹35–70L by 30', salaryPeak:'₹1–1.5Cr at peak', fit:82, salary_score:88, future:99, difficulty:82, desc:'The most future-proof specialisation. Designing the hardware that runs AI — neural processing units, hardware accelerators, in-memory computing, neuromorphic chips. Nvidia, Google, Apple, Amazon, and a hundred startups are all building custom AI chips right now. Overlaps heavily with SoC Architecture but with a sharper AI focus.', pros:['Highest future demand of any hardware specialisation','Every company building AI products needs this — massive market','Korea has strong research in neuromorphic and AI chip design','Aligns with your AI chip excitement directly'], cons:['Requires both hardware design AND ML knowledge — steep learning curve','Very new field — fewer established research groups than VLSI','Riskier if AI hardware consolidates to fewer players'], universities:['KAIST — AI chip and neuromorphic lab','SKKU — Samsung AI hardware','NTU — hardware ML acceleration'], tags:['NPU','Hardware accelerator','Systolic arrays','In-memory computing','RISC-V AI','Neuromorphic'], companies:['Nvidia','Google TPU team','Apple Neural Engine','Samsung AI','Qualcomm AI'] },
+  { id:'photonics', title:'Photonics & Semiconductor Devices', short:'Device physics, photonics, fab processes', verdict:'maybe', verdictLabel:'Research-heavy path', salary:'₹25–45L by 30', salaryPeak:'₹50–70L at peak', fit:40, salary_score:58, future:75, difficulty:90, desc:'The most physics-intensive path — studying how semiconductor devices work at the quantum and materials level. Photonics (light-based computing) is emerging as a long-term bet for post-silicon computing. Strong at NTHU and POSTECH. Primarily a research path — industry jobs are narrower and salaries are lower.', pros:['Photonic computing could be the next computing paradigm','POSTECH and NTHU are world-class for device physics','Strong for PhD track if you consider academia'], cons:['Lowest salary ceiling on this list','Most disconnected from your current internship experience','Very research-heavy — least aligned with management goals','Industry jobs are narrow — mostly fabs and research labs'], universities:['POSTECH — semiconductor physics','NTHU — photonics research','NTU — device engineering'], tags:['FinFET','Photonic IC','Quantum dots','OLED','Process integration','MOCVD'], companies:['TSMC','Samsung Foundry','SK Hynix R&D','LG Display','Applied Materials'] },
+];
+const verdictColor = { best:'pill-green', good:'pill-blue', maybe:'pill-amber', skip:'pill-red' };
+const scoreColors = ['#3b82f6','#10b981','#f59e0b','#ef4444'];
+
+function renderSpecs() {
+  document.getElementById('spec-grid').innerHTML = specs.map(s => `
+    <div class="card ${s.recommended?'recommended':''}" onclick="showSpec('${s.id}')" id="sc-${s.id}" style="position:relative">
+      ${s.recommended?'<div style="position:absolute;top:-1px;right:10px;background:var(--green);color:white;font-size:9px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:0 0 6px 6px">YOUR PICK</div>':''}
+      <div style="font-size:13px;font-weight:600;color:var(--text1);margin-bottom:3px">${s.title}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px">${s.short}</div>
+      ${[['Fit',s.fit,scoreColors[0]],['Salary',s.salary_score,scoreColors[1]],['Future',s.future,scoreColors[2]]].map(([l,v,c])=>`
+        <div class="flex-center gap-6 mb-8">
+          <span style="font-size:10px;color:var(--text3);width:38px;flex-shrink:0">${l}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${v}%;background:${c}"></div></div>
+          <span style="font-size:10px;font-family:var(--mono);color:var(--text2);min-width:22px">${v}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+let activeSpec = null;
+function showSpec(id) {
+  document.querySelectorAll('#spec-grid .card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('sc-'+id).classList.add('active');
+  const s = specs.find(x=>x.id===id);
+  activeSpec = id;
+  const det = document.getElementById('spec-detail');
+  det.style.display = 'block';
+  det.innerHTML = `
+    <div class="detail-panel">
+      <div class="flex justify-between flex-wrap gap-8 mb-12">
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--text1)">${s.title}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px">${s.short}</div>
+        </div>
+        <span class="pill ${verdictColor[s.verdict]}">${s.verdictLabel}</span>
+      </div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">${s.desc}</p>
+      <div class="grid-4 mb-16">
+        ${[['Fit for you',s.fit,scoreColors[0]],['Salary',s.salary_score,scoreColors[1]],['Future demand',s.future,scoreColors[2]],['Difficulty',s.difficulty,scoreColors[3]]].map(([l,v,c])=>`
+          <div class="score-chip" style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px">
+            <div class="score-num" style="color:${c}">${v}</div>
+            <div class="score-lab">${l}</div>
+          </div>`).join('')}
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px">
+        <span style="font-size:11px;color:var(--text3)">Salary by 30: </span>
+        <span style="font-size:15px;font-weight:700;color:var(--text1);font-family:var(--mono)">${s.salary}</span>
+        <span style="font-size:11px;color:var(--text3);margin-left:8px">Peak: ${s.salaryPeak}</span>
+      </div>
+      <div class="grid-2 mb-14">
+        <div class="info-box">
+          <div class="info-title">Advantages</div>
+          <ul class="info-list">${s.pros.map(p=>`<li>${p}</li>`).join('')}</ul>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Disadvantages</div>
+          <ul class="info-list">${s.cons.map(c=>`<li>${c}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="mb-10">
+        <div class="info-title mb-8">Target universities for this specialisation</div>
+        <div class="tags">${s.universities.map(u=>`<span class="tag">${u}</span>`).join('')}</div>
+      </div>
+      <div class="mb-10">
+        <div class="info-title mb-8">Key skills & technologies</div>
+        <div class="tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div>
+        <div class="info-title mb-8">Target companies post-MS</div>
+        <div class="tags">${s.companies.map(c=>`<span class="tag">${c}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* --- COUNTRY DATA --- */
+const countries = [
+  { id:'kr', flag:'🇰🇷', name:'South Korea', recommended:true, tagline:'Global semiconductor capital — Samsung, SK Hynix, Qualcomm. Best SoC/VLSI pipeline in Asia.', verdict:'best', verdictLabel:'Your primary target', scores:[{val:95,label:'SoC/VLSI strength',color:'#10b981'},{val:90,label:'Scholarship quality',color:'#3b82f6'},{val:88,label:'Industry pipeline',color:'#f59e0b'},{val:72,label:'Admission odds',color:'#ef4444'},{val:78,label:'Life quality',color:'#14b8a6'}], money:[{label:'Monthly stipend (KGSP)',val:'₩900,000',inr:'≈ ₹55,000'},{label:'Tuition',val:'Fully covered',inr:'All semesters'},{label:'Living cost',val:'₩700–900k',inr:'≈ ₹43–55k/mo'}], scholarship:'KGSP (Government) — fully funded. KAIST/SKKU university scholarships + RA funding also available. Science/engineering applicants get +5% bonus.', topUnis:['KAIST (#1 Korea, SoC/AI)','SKKU (Samsung pipeline)','POSTECH (research-heavy)','Yonsei (SKY brand)','UNIST (govt-funded, underrated)'], pros:['Semiconductor ecosystem is world #1 alongside Taiwan','KGSP covers everything including language training','TOPIK 5+ = skip language year entirely','Samsung/SK Hynix recruit directly from campus','India Semiconductor Mission needs Korea-trained engineers'], cons:['Korean language required for daily life','1-year language training if TOPIK below 5','Very competitive for KAIST','Winters are harsh (-5 to -10°C in Daejeon/Pohang)'], language:'Korean daily, English academic. TOPIK needed for KGSP bonus.', postMS:'₹20–30L starting in India. Samsung Korea, Qualcomm India, MediaTek India direct pipeline.', consultant:'This is your plan. The KGSP is one of the most generous government scholarships in the world and engineering applicants get a selection bonus. Your love for Korean culture is a genuine advantage — language learning will be faster and your interview at the Embassy will be more authentic. Execute the plan.', cbClass:'cn-green', tags:['KGSP','Samsung','SK Hynix','KAIST','SoC','Embedded AI'] },
+  { id:'tw', flag:'🇹🇼', name:'Taiwan', recommended:true, tagline:'TSMC and MediaTek\'s backyard. Best for VLSI industry pipeline, no language year required.', verdict:'best', verdictLabel:'Apply in parallel', scores:[{val:92,label:'SoC/VLSI strength',color:'#10b981'},{val:78,label:'Scholarship quality',color:'#3b82f6'},{val:92,label:'Industry pipeline',color:'#f59e0b'},{val:68,label:'Admission odds',color:'#ef4444'},{val:75,label:'Life quality',color:'#14b8a6'}], money:[{label:'Monthly stipend (MOE)',val:'NT$20,000',inr:'≈ ₹52,000'},{label:'Tuition (MOE)',val:'Up to NT$40k/sem',inr:'≈ ₹1,04,000/sem'},{label:'Living cost',val:'NT$15–22k',inr:'≈ ₹39–57k/mo'}], scholarship:'MOE Taiwan Scholarship (partial) — stipend + partial tuition. University RA funding stacks on top. Less competitive than KGSP from India.', topUnis:['NYCU (SoC/VLSI, next to Hsinchu Science Park)','NTU (#1 Taiwan overall)','NTHU (devices, photonics)','NCKU (TSMC Tainan pipeline)','NTUST (applied engineering)'], pros:['NYCU literally surrounded by TSMC, MediaTek, Realtek','No mandatory language year — start MS directly','MOE scholarship less competitive than KGSP from India','TSMC and MediaTek direct recruitment from campus','Lower overall competition for Indian applicants'], cons:['MOE only partially covers tuition if fees exceed NT$40k','Mandarin needed for daily life outside campus','Smaller country — fewer job options post-MS locally','Taiwan geopolitical situation (cross-strait tension)'], language:'Mandarin daily, English academic. No TOPIK equivalent required.', postMS:'₹20–28L starting in India. MediaTek, Realtek, TSMC design centers. Excellent return-to-India profile.', consultant:'Apply to Taiwan simultaneously with Korea — the SOP effort overlaps 80%. NYCU is your bullseye: the Hsinchu Science Park placement is unmatched anywhere in the world for chip design. MOE scholarship + university RA can combine for a total that rivals KGSP. Do not skip this.', cbClass:'cn-blue', tags:['MOE scholarship','TSMC','MediaTek','NYCU','VLSI','No language year'] },
+  { id:'jp', flag:'🇯🇵', name:'Japan', recommended:false, tagline:'Strong research culture, generous MEXT scholarship. Focus: automotive & consumer electronics.', verdict:'good', verdictLabel:'Good option', scores:[{val:72,label:'SoC/VLSI strength',color:'#10b981'},{val:85,label:'Scholarship quality',color:'#3b82f6'},{val:65,label:'Industry pipeline',color:'#f59e0b'},{val:60,label:'Admission odds',color:'#ef4444'},{val:80,label:'Life quality',color:'#14b8a6'}], money:[{label:'Monthly stipend (MEXT)',val:'¥143–145k',inr:'≈ ₹82–83,000'},{label:'Tuition',val:'Fully covered',inr:'MEXT pays all'},{label:'Living cost',val:'¥80–120k',inr:'≈ ₹46–69k/mo'}], scholarship:'MEXT (fully funded) — highest monthly stipend of all countries listed. Embassy track + University track. Apply April–May each year.', topUnis:['Tokyo Tech (strong EE, SoC research)','University of Tokyo (top overall)','Kyoto University (devices, materials)','Osaka University (semiconductor research)','Nagoya University (automotive electronics)'], pros:['MEXT stipend ₹82,000/month — highest of all options here','Fully funded including airfare','Exceptional quality of life and safety','Strong in automotive electronics (Toyota, Denso, Murata)','Less competitive for Indians than Korea for MEXT'], cons:['Japanese semiconductor industry less dominant than Korea/Taiwan for cutting-edge VLSI','Japanese language essential for daily life and most industry jobs','Sony, Toshiba less globally dominant than Samsung/TSMC','SoC/Embedded AI research less prominent than Korea','MEXT only 5–10% acceptance rate globally'], language:'Japanese essential for industry jobs. Academic programs sometimes English. Language training provided.', postMS:'₹15–25L starting in India. Japan firms (Renesas, Sony) have India presence but smaller than Qualcomm/Samsung.', consultant:'Japan is excellent if you specifically want automotive electronics or robotics-adjacent research. The MEXT stipend is actually the highest per month of all countries here. But for your specific goal — SoC/Embedded AI targeting Samsung/Qualcomm — Korea and Taiwan are more directly aligned. Consider Japan as a backup application track.', cbClass:'cn-blue', tags:['MEXT','Renesas','Sony','Automotive','Robotics'] },
+  { id:'de', flag:'🇩🇪', name:'Germany', recommended:false, tagline:'Zero tuition at public universities. Strong automotive chip ecosystem. Bosch/Infineon/Continental careers.', verdict:'good', verdictLabel:'Strong backup', scores:[{val:68,label:'SoC/VLSI strength',color:'#10b981'},{val:55,label:'Scholarship quality',color:'#3b82f6'},{val:70,label:'Industry pipeline',color:'#f59e0b'},{val:75,label:'Admission odds',color:'#ef4444'},{val:82,label:'Life quality',color:'#14b8a6'}], money:[{label:'Tuition',val:'Zero',inr:'Public unis: free'},{label:'Monthly living (self)',val:'€800–1,000',inr:'≈ ₹72–90,000'},{label:'DAAD Scholarship',val:'€850/month',inr:'≈ ₹76,500'}], scholarship:'DAAD scholarship (partial) — €850/month + travel. No tuition anyway at public unis. Must self-fund living if no DAAD. Part-time work legal (20hrs/week).', topUnis:['TU Munich (top EE, Siemens/Infineon ties)','RWTH Aachen (strong embedded/hardware)','KIT Karlsruhe (microelectronics)','University of Stuttgart (automotive electronics)','TU Dresden (semiconductor research)'], pros:['Zero tuition at all public universities','Strong for Infineon, Bosch, Continental, Siemens careers','Post-study work visa 18 months, path to EU residency','Legal part-time work during studies','High quality of life at lower cost than US/UK'], cons:['German essential for daily life and most industry jobs','Digital/SoC chip design less developed than Korea/Taiwan/US','No government scholarship equivalent to KGSP/MEXT','Cost of living must be self-funded without DAAD','No direct TSMC/Samsung/Qualcomm pipelines from German campuses'], language:'German essential for jobs. Programs are English but daily life needs German.', postMS:'₹18–28L starting in India (Bosch India, Continental, Infineon India). EU stay option is strong.', consultant:'Germany is the right choice if you are specifically interested in automotive semiconductors or embedded systems for industrial/EV applications. If your primary goal is SoC for mobile/AI chips (Qualcomm/Samsung-type work), Korea and Taiwan are more directly relevant. Germany is excellent as a backup given zero tuition.', cbClass:'cn-blue', tags:['DAAD','Infineon','Bosch','Zero tuition','Automotive','EU residency'] },
+  { id:'sg', flag:'🇸🇬', name:'Singapore', recommended:false, tagline:'NUS and NTU are top 20 globally. Expensive but excellent research. English-medium, Asia hub.', verdict:'consider', verdictLabel:'Consider carefully', scores:[{val:80,label:'SoC/VLSI strength',color:'#10b981'},{val:45,label:'Scholarship quality',color:'#3b82f6'},{val:75,label:'Industry pipeline',color:'#f59e0b'},{val:55,label:'Admission odds',color:'#ef4444'},{val:85,label:'Life quality',color:'#14b8a6'}], money:[{label:'Tuition (after grant)',val:'SG$15–25k/yr',inr:'≈ ₹9–15L/year'},{label:'Monthly living',val:'SG$1,500–2,000',inr:'≈ ₹90k–1.2L/month'},{label:'RA funding',val:'SG$2,000/month',inr:'≈ ₹1.2L/month'}], scholarship:'No major government scholarship for Indians. Tuition Grant Scheme (TGS) reduces fees by 50–70%. RA funding from professor is the main route. Very competitive.', topUnis:['NUS (top 8 globally, strong VLSI/IC design)','NTU (top 15, semiconductor, AI hardware)','SUTD (design-focused, smaller intake)'], pros:['NUS and NTU are genuinely top 20 globally','English is the primary language — zero barrier','Asia-Pacific business hub — strong network','GlobalFoundries fab in Singapore','High quality of life, safe, excellent infrastructure'], cons:['No government scholarship equivalent to KGSP/MEXT for Indians','Very high cost of living — ₹1L+/month just for basics','Without RA, tuition alone is ₹9–15L/year self-funded','Small country — limited local semiconductor jobs post-MS','Highly competitive admission — global applicant pool'], language:'English only — no language barrier at all.', postMS:'₹20–30L starting in India. NUS/NTU brand strong. GlobalFoundries, Broadcom Singapore connection.', consultant:'Singapore\'s problem for your situation is not quality — NUS and NTU are genuinely excellent. The problem is cost. Without a strong RA or the rare scholarship, you are looking at ₹1L/month living + ₹9–15L/year tuition self-funded. Only pursue Singapore if you get a confirmed RA funding offer from a professor. Without it, Korea gives you equal or better research for zero cost.', cbClass:'cn-amber', tags:['NUS','NTU','English only','GlobalFoundries','High cost','No language barrier'] },
+  { id:'us', flag:'🇺🇸', name:'USA', recommended:false, tagline:'Highest post-MS salary globally. Most expensive, visa uncertainty, but unmatched research quality.', verdict:'consider', verdictLabel:'You said no — confirmed', scores:[{val:98,label:'SoC/VLSI strength',color:'#10b981'},{val:50,label:'Scholarship quality',color:'#3b82f6'},{val:98,label:'Industry pipeline',color:'#f59e0b'},{val:40,label:'Admission odds',color:'#ef4444'},{val:70,label:'Life quality',color:'#14b8a6'}], money:[{label:'Tuition (no funding)',val:'$30–50k/year',inr:'≈ ₹25–42L/year'},{label:'Monthly living',val:'$1,500–2,500',inr:'≈ ₹1.25–2L/month'},{label:'RA/TA if funded',val:'$1,500–2,500/mo',inr:'Covers tuition + stipend'}], scholarship:'No government scholarship. RA/TA funding from professor possible but competitive. With 7-8 CGPA from DY Patil, getting funding at top schools is difficult.', topUnis:['Stanford, MIT (world #1-2)','Georgia Tech, UIUC, UCSD','UT Austin (strong VLSI)','Purdue, UMich, UCLA'], pros:['Qualcomm, NVIDIA, Apple, Intel HQ — unmatched placement','Highest MS salary in the world post-graduation','OPT allows 3 years US work after MS','World\'s best VLSI research labs','Startup ecosystem for deep-tech hardware'], cons:['You explicitly said no — this is here for reference only','7-8 CGPA makes funded admission at top schools very hard','H-1B visa lottery after OPT — significant uncertainty','Self-funded MS costs ₹50–80L+ total','Political/visa environment uncertain for Indian students'], language:'English only.', postMS:'$120–180k in USA. ₹50–80L if returning to India. Highest ceiling of all options.', consultant:'You said no to the US and that was the right decision for your profile. With 7-8 CGPA from DY Patil, getting funded admission at schools where the VLSI research actually matters is genuinely difficult. The unfunded US MS cost of ₹50-80L makes no sense when KGSP gives you equal career outcomes for zero cost. This comparison is here only so you understand what you\'re trading and why Korea/Taiwan is the better risk-adjusted choice.', cbClass:'cn-amber', tags:['Highest salary','H-1B risk','Very expensive','Best research','You said no'] },
+];
+
+let activeCountry = 'kr';
+function renderCountryTabs() {
+  document.getElementById('country-tabs').innerHTML = countries.map(c=>`
+    <div class="ctab ${c.id===activeCountry?'active':''}" onclick="setCountry('${c.id}')">
+      ${c.recommended?'<div class="recommended-badge">YOUR PICK</div>':''}
+      <div class="ctab-flag">${c.flag}</div>
+      <div class="ctab-name">${c.name}</div>
+      <div class="ctab-score">${Math.round(c.scores.reduce((a,s)=>a+s.val,0)/c.scores.length)}/100 avg</div>
+    </div>`).join('');
+}
+function setCountry(id) { activeCountry=id; renderCountryTabs(); renderCountryDetail(); }
+function renderCountryDetail() {
+  const c = countries.find(x=>x.id===activeCountry);
+  const vmap = {best:'pill-green',good:'pill-blue',consider:'pill-amber'};
+  document.getElementById('country-detail').innerHTML = `
+    <div class="detail-panel">
+      <div class="flex justify-between flex-wrap gap-8 mb-16">
+        <div>
+          <div style="font-size:20px;font-weight:700;color:var(--text1)">${c.flag} ${c.name}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:4px;max-width:500px;line-height:1.5">${c.tagline}</div>
+        </div>
+        <span class="pill ${vmap[c.verdict]}">${c.verdictLabel}</span>
+      </div>
+      <div class="grid-${c.scores.length>3?'3':'3'} mb-16" style="grid-template-columns:repeat(5,1fr)">
+        ${c.scores.map(s=>`
+          <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;text-align:center">
+            <div style="font-size:22px;font-weight:700;font-family:var(--mono);color:${s.color}">${s.val}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.03em;line-height:1.3">${s.label}</div>
+          </div>`).join('')}
+      </div>
+      <div class="grid-3 mb-14">
+        ${c.money.map(m=>`
+          <div class="money-card">
+            <div class="money-label">${m.label}</div>
+            <div class="money-val">${m.val}</div>
+            <div class="money-inr">${m.inr}</div>
+          </div>`).join('')}
+      </div>
+      <div class="grid-2 mb-14">
+        <div class="info-box">
+          <div class="info-title">Advantages</div>
+          <ul class="info-list">${c.pros.map(p=>`<li>${p}</li>`).join('')}</ul>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Disadvantages</div>
+          <ul class="info-list">${c.cons.map(p=>`<li>${p}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="grid-2 mb-14">
+        <div class="info-box">
+          <div class="info-title">Top universities</div>
+          <ul class="info-list">${c.topUnis.map(u=>`<li>${u}</li>`).join('')}</ul>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Scholarship available</div>
+          <ul class="info-list"><li>${c.scholarship}</li></ul>
+          <div class="info-title" style="margin-top:10px">Language requirement</div>
+          <ul class="info-list"><li>${c.language}</li></ul>
+          <div class="info-title" style="margin-top:10px">Post-MS India career</div>
+          <ul class="info-list"><li>${c.postMS}</li></ul>
+        </div>
+      </div>
+      <div class="info-title mb-8">Key tags</div>
+      <div class="tags mb-14">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="consultant-note ${c.cbClass}"><strong>Consultant note: </strong>${c.consultant}</div>
+    </div>`;
+}
+
+/* --- UNIVERSITIES DATA --- */
+const uniData = {
+  kr: {
+    filters:['All','VLSI/SoC','Embedded/AI','Memory','RF/5G','Power/EV','Scholarship: KGSP'],
+    tiers:[
+      { id:'elite', label:'Elite', color:'#ef4444', desc:'World top 100 engineering — highest competition, highest reward', unis:[
+        { name:'KAIST', full:'Korea Advanced Institute of Science & Technology', loc:'Daejeon', qs:'#53 World / #1 Korea', chance:35, strengths:['SoC & chip architecture','AI hardware & neuromorphic','Memory architecture','Robotics & cyber-physical systems'], english:'Full English campus — no Korean required', kgsp:true, ra:true, note:'Best overall engineering university in Korea. Most competitive. Professor pre-contact is mandatory for realistic admission. Strong government research funding.', targets:['VLSI/SoC','Embedded/AI','Memory','Scholarship: KGSP'], strategy:'Email professors in your target lab 6+ months before application. A positive response flips your odds dramatically. Aim for KGSP University Track.' },
+        { name:'POSTECH', full:'Pohang University of Science & Technology', loc:'Pohang', qs:'#91 World / #2 Korea', chance:45, strengths:['Semiconductor device physics','Memory & storage technology','Power electronics','Advanced materials'], english:'English-medium graduate programs', kgsp:true, ra:true, note:'Small, research-intensive university. Faculty-to-student ratio is excellent — more personalised research experience than any other Korean university.', targets:['Memory','Power/EV','VLSI/SoC','Scholarship: KGSP'], strategy:'Smaller intake = professors have more say in admissions. Research interest letter + professor pre-contact is extremely important here.' },
+      ]},
+      { id:'top', label:'Top Tier', color:'#3b82f6', desc:'World top 150 — strong targets for your profile with good funding', unis:[
+        { name:'SNU', full:'Seoul National University', loc:'Seoul', qs:'#31 World / #3 Korea', chance:30, strengths:['Semiconductor devices','Communications & signal processing','AI & machine learning hardware','Nanoelectronics'], english:'English-medium for most grad programs', kgsp:true, ra:true, note:'Considered the Harvard of Korea. Extremely competitive. Requires exceptional profile — IIT-level competition. Harder than KAIST for international students from non-top Indian universities.', targets:['VLSI/SoC','Memory','RF/5G','Scholarship: KGSP'], strategy:'Honestly a long shot with 7-8 CGPA from DY Patil. Include it as an aspirational application but do not bank on it. Professor pre-contact is essential.' },
+        { name:'SKKU', full:'Sungkyunkwan University', loc:'Suwon / Seoul', qs:'#109 World / #4 Korea', chance:62, strengths:['SoC & system IC design','Memory & DRAM (Samsung-funded)','AI hardware acceleration','Power semiconductors'], english:'English-medium graduate programs', kgsp:true, ra:true, note:'Samsung directly co-funds research at SKKU. Best industry pipeline in Korea. If your goal is Samsung, Qualcomm, or MediaTek — this is your top target. Very Indian-student friendly.', targets:['VLSI/SoC','Embedded/AI','Memory','Scholarship: KGSP'], strategy:'Your best overall Korea target. SKKU values industry experience and applied background — your internship + PPO is specifically valuable here. Apply via both direct and KGSP University Track.' },
+        { name:'Yonsei', full:'Yonsei University', loc:'Seoul', qs:'#56 World / #5 Korea', chance:68, strengths:['Embedded & IoT systems','RF & wireless communications','Smart energy systems','AI & connected devices'], english:'100% English-taught graduate programs', kgsp:true, ra:true, note:'SKY university (Seoul-Korea-Yonsei) — the trinity of prestigious Korean universities. Strong brand for career networking in Korea. More holistic admissions process than KAIST/POSTECH.', targets:['Embedded/AI','RF/5G','Power/EV','Scholarship: KGSP'], strategy:'Strong safe-to-target option. SOP quality matters more than CGPA here. Seoul location = best networking and startup access in Korea.' },
+      ]},
+      { id:'strong', label:'Strong Targets', color:'#10b981', desc:'Excellent research quality — realistic admissions with your profile', unis:[
+        { name:'Korea University', full:'Korea University', loc:'Seoul', qs:'#74 World / #6 Korea', chance:65, strengths:['Electronic engineering','Communications systems','Semiconductor research','AI & computing'], english:'English-medium graduate programs', kgsp:true, ra:true, note:'Third of the SKY trinity. Strong brand, strong alumni network across Korean industry. Less research-intensive than KAIST/POSTECH but excellent placement.', targets:['VLSI/SoC','RF/5G','Embedded/AI','Scholarship: KGSP'], strategy:'Good target alongside Yonsei. Apply to both SKY universities — they have similar profiles but different lab strengths.' },
+        { name:'UNIST', full:'Ulsan National Institute of Science & Technology', loc:'Ulsan', qs:'#171 World / #7 Korea', chance:72, strengths:['Electrical engineering','Smart manufacturing & IoT','Energy & battery systems','Semiconductor devices'], english:'Full English campus', kgsp:true, ra:true, note:'Heavily underrated by Indian students. Government-founded, fully English, strong research funding. Located in Ulsan — Hyundai and Samsung SDI city. Excellent for EV and energy research.', targets:['Power/EV','Embedded/AI','Memory','Scholarship: KGSP'], strategy:'Your highest probability funded Korea admission. Less competition from Indian applicants = easier KGSP University Track. Strongly recommend including this.' },
+        { name:'DGIST', full:'Daegu Gyeongbuk Institute of Science & Technology', loc:'Daegu', qs:'Top 600 World', chance:78, strengths:['Robot engineering','Information & communication engineering','Brain & cognitive engineering','Emerging materials'], english:'Full English campus', kgsp:true, ra:true, note:'Government-founded science & tech institute. Very small, very research-focused. High funding per student. Overlooked by most international applicants.', targets:['Embedded/AI','RF/5G','Scholarship: KGSP'], strategy:'Excellent safety option. Full English campus, strong research stipends, low competition from India. ICE department is the target for your profile.' },
+        { name:'GIST', full:'Gwangju Institute of Science & Technology', loc:'Gwangju', qs:'Top 500 World', chance:80, strengths:['Electrical engineering & computer science','Photonics & applied physics','AI & computing','Smart sensors'], english:'Full English campus', kgsp:true, ra:true, note:'Fourth government science institute alongside KAIST, UNIST, DGIST. Full English. Strong photonics and EE research. Very generous RA funding for MS students.', targets:['VLSI/SoC','Embedded/AI','Scholarship: KGSP'], strategy:'Safest funded Korea admission. Include as your insurance option. RA funding here is very accessible — professors actively look for MS students.' },
+      ]},
+      { id:'good', label:'Good Options', color:'#f59e0b', desc:'Solid universities — good for backup or specific lab interests', unis:[
+        { name:'Hanyang', full:'Hanyang University', loc:'Seoul / Ansan', qs:'Top 250 World', chance:75, strengths:['Electrical & biomedical engineering','Automotive electronics','Communications','Materials engineering'], english:'English-medium graduate programs', kgsp:true, ra:false, note:'Strong engineering school with excellent industry ties. Known for automotive and manufacturing electronics. Samsung, LG, and Hyundai all recruit here.', targets:['Power/EV','Embedded/AI','RF/5G'], strategy:'Good backup for Seoul. Apply if targeting automotive or manufacturing electronics. Less research prestige than SKY but strong industry placement.' },
+        { name:'Sogang', full:'Sogang University', loc:'Seoul', qs:'Top 600 World', chance:80, strengths:['Electronic engineering','Semiconductor & display','Communications engineering','Computer engineering'], english:'English-medium programs available', kgsp:true, ra:false, note:'Jesuit university with strong industry connections. Located in central Seoul. Strong in semiconductor and display technology research.', targets:['VLSI/SoC','RF/5G'], strategy:'Good backup option. Less competitive than SKY — safe admission with your profile.' },
+        { name:'Ajou', full:'Ajou University', loc:'Suwon', qs:'Top 700 World', chance:85, strengths:['Electrical & computer engineering','Automotive systems','IoT & embedded systems','Semiconductor'], english:'English-medium graduate programs', kgsp:true, ra:false, note:'Strong automotive electronics heritage — located near Samsung headquarters in Suwon. Good for embedded systems and automotive ECU research.', targets:['Embedded/AI','Power/EV'], strategy:'Very accessible admission. Include as your safest Korea backup option.' },
+      ]},
+    ]
+  },
+  tw: {
+    filters:['All','VLSI/SoC','Embedded/AI','Memory','RF/5G','Power/EV','Scholarship: MOE'],
+    tiers:[
+      { id:'elite', label:'Elite', color:'#ef4444', desc:'Asia top 100 engineering — Taiwan\'s absolute best', unis:[
+        { name:'NTU', full:'National Taiwan University', loc:'Taipei', qs:'#65 World / #1 Taiwan', chance:42, strengths:['Semiconductor devices & VLSI','Communications & signal processing','AI hardware research','Nanoelectronics & photonics'], english:'English-medium graduate programs', kgsp:false, ra:true, moe:true, note:'Taiwan\'s best university overall. Most competitive. Strong academic research culture. Best brand for PhD track or research career. Near TSMC design centers.', targets:['VLSI/SoC','Embedded/AI','Memory','Scholarship: MOE'], strategy:'Include as your Taiwan stretch application. MOE scholarship here is harder but possible. Professor pre-contact critical. Graduate Institute of Electronics Engineering is your target dept.' },
+        { name:'NYCU', full:'National Yang Ming Chiao Tung University', loc:'Hsinchu', qs:'#83 World / #2 Taiwan', chance:60, strengths:['VLSI & SoC design (best in Asia)','RF & microwave circuits','Communications IC design','Power IC & mixed-signal'], english:'English-medium graduate programs', kgsp:false, ra:true, moe:true, note:'Located literally next to Hsinchu Science Park — TSMC, MediaTek, Realtek, Novatek are all within walking distance. Single best university in Asia for VLSI industry pipeline.', targets:['VLSI/SoC','RF/5G','Scholarship: MOE'], strategy:'Your top Taiwan target for VLSI/SoC. Apply here without fail. MOE scholarship is your best funded Taiwan bet. College of EECS is the target. MediaTek internship pipeline is real and direct.' },
+      ]},
+      { id:'top', label:'Top Tier', color:'#3b82f6', desc:'Excellent research — strong industry connections to Taiwan semiconductor industry', unis:[
+        { name:'NTHU', full:'National Tsing Hua University', loc:'Hsinchu', qs:'#116 World / #3 Taiwan', chance:62, strengths:['EE & semiconductor devices','Photonics & nanophotonics','Power electronics','Communications & signal processing'], english:'English-medium graduate programs', kgsp:false, ra:true, moe:true, note:'Also in Hsinchu — shares the semiconductor park ecosystem with NYCU. Strong in devices and photonics. Slightly more accessible than NYCU for admissions. Both NTHU and NYCU feed into the same Hsinchu industry.', targets:['VLSI/SoC','Power/EV','Embedded/AI','Scholarship: MOE'], strategy:'Apply alongside NYCU — they are in the same city. NTHU has slightly better admission odds and equally strong industry connections.' },
+        { name:'NCKU', full:'National Cheng Kung University', loc:'Tainan', qs:'#171 World / #4 Taiwan', chance:65, strengths:['Microelectronics & VLSI','Electrical machinery & power systems','Embedded systems & IoT','Communications engineering'], english:'English-medium graduate programs', kgsp:false, ra:true, moe:true, note:'Taiwan\'s top engineering school outside Taipei-Hsinchu. Located near Tainan Science Park — TSMC fab campus is nearby. Strong industry connections to Southern Taiwan semiconductor cluster.', targets:['VLSI/SoC','Power/EV','Embedded/AI','Scholarship: MOE'], strategy:'Excellent target if you want TSMC fab-side exposure. Less competition than NYCU/NTHU from international applicants. Good MOE scholarship odds.' },
+        { name:'NTUST', full:'National Taiwan University of Science & Technology', loc:'Taipei', qs:'Top 250 World / #5 Taiwan', chance:70, strengths:['Electrical engineering & applied practice','Power electronics & drives','Embedded systems','Electronic commerce'], english:'English-medium programs', kgsp:false, ra:true, moe:true, note:'More industry/application focused than NTU. Strong for practical engineering work. Located in Taipei — good access to tech companies. Less research-heavy culture — suits applied engineering interest.', targets:['Power/EV','Embedded/AI','VLSI/SoC','Scholarship: MOE'], strategy:'Good option if you prefer applied over pure research. Easier admission than NTU/NYCU.' },
+      ]},
+      { id:'strong', label:'Strong Targets', color:'#10b981', desc:'Solid programs — good research environment, accessible admissions', unis:[
+        { name:'NCU', full:'National Central University', loc:'Taoyuan', qs:'Top 350 World / #6 Taiwan', chance:72, strengths:['Electrical engineering','Communications & networking','Optoelectronics','Embedded & IoT systems'], english:'English-medium graduate programs', kgsp:false, ra:true, moe:true, note:'Strong optoelectronics and communications research. Near Taoyuan — Taiwan\'s industrial corridor. Less prominent than NYCU but solid research and very Indian-student friendly.', targets:['RF/5G','Embedded/AI','Scholarship: MOE'], strategy:'Good safety target for Taiwan. MOE scholarship accessible here. Less competition.' },
+        { name:'NSYSU', full:'National Sun Yat-sen University', loc:'Kaohsiung', qs:'Top 500 World / #7 Taiwan', chance:75, strengths:['Electrical engineering','Communications & networking','Marine electronics','Optoelectronics'], english:'English-medium programs', kgsp:false, ra:true, moe:true, note:'Located in Kaohsiung — Taiwan\'s second city. TSMC has facilities in Kaohsiung Science Park. Strong communications and networking research. Beautiful coastal campus.', targets:['RF/5G','Embedded/AI','Scholarship: MOE'], strategy:'Accessible admission. TSMC proximity is a bonus. Good for communications and RF track.' },
+        { name:'NCHU', full:'National Chung Hsing University', loc:'Taichung', qs:'Top 500 World', chance:78, strengths:['Electrical engineering','Power systems & drives','Smart agriculture electronics','Optoelectronics'], english:'English-medium programs available', kgsp:false, ra:false, moe:true, note:'Strong power systems and drives research. Less VLSI-focused. Good for power electronics and smart systems. Taichung location — central Taiwan.', targets:['Power/EV','Embedded/AI','Scholarship: MOE'], strategy:'Best Taiwan option for power electronics path. Less competition from VLSI-focused Indian applicants.' },
+      ]},
+    ]
+  }
+};
+
+let uniCountry='kr', uniFilter='All';
+function setUniCountry(c,el) {
+  uniCountry=c; uniFilter='All';
+  document.querySelectorAll('#uni-country-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderUniFilters(); renderUnis();
+}
+function renderUniFilters() {
+  const d = uniData[uniCountry];
+  document.getElementById('uni-filter-tabs').innerHTML = d.filters.map(f=>`<div class="tab ${f===uniFilter?'active':''}" onclick="setUniFilter('${f}')">${f}</div>`).join('');
+}
+function setUniFilter(f) {
+  uniFilter=f;
+  document.querySelectorAll('#uni-filter-tabs .tab').forEach(t=>t.classList.toggle('active',t.textContent===f));
+  renderUnis();
+}
+function chanceColor(c) { return c>=65?'var(--green)':c>=45?'var(--accent)':c>=30?'var(--gold)':'var(--red)'; }
+function renderUnis() {
+  const d = uniData[uniCountry];
+  let html = '';
+  d.tiers.forEach(tier=>{
+    const unis = uniFilter==='All' ? tier.unis : tier.unis.filter(u=>u.targets.includes(uniFilter));
+    if (!unis.length) return;
+    html += `<div style="margin-bottom:20px">
+      <div class="flex-center gap-8 mb-10">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${tier.color};flex-shrink:0"></span>
+        <span style="font-size:13px;font-weight:600;color:var(--text1)">${tier.label}</span>
+        <span style="font-size:11px;color:var(--text3)">— ${tier.desc}</span>
+      </div>
+      ${unis.map(u=>renderUniCard(u)).join('')}
+    </div>`;
+  });
+  document.getElementById('uni-list').innerHTML = html || '<p style="color:var(--text3);font-size:13px;padding:20px 0">No universities match this filter.</p>';
+}
+function renderUniCard(u) {
+  const id = 'uc-'+u.name.replace(/\s+/g,'');
+  const badges = [];
+  if(u.kgsp) badges.push('<span class="pill pill-green" style="font-size:10px">KGSP</span>');
+  if(u.moe) badges.push('<span class="pill pill-blue" style="font-size:10px">MOE</span>');
+  if(u.ra) badges.push('<span class="pill pill-purple" style="font-size:10px">RA/TA</span>');
+  return `<div class="uni-card" id="${id}" onclick="toggleUni('${id}')">
+    <div class="uni-head">
+      <div style="flex:1;min-width:120px">
+        <div style="font-size:14px;font-weight:600;color:var(--text1)">${u.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px">${u.full}</div>
+      </div>
+      <div class="flex-center gap-6 flex-wrap">
+        <span style="font-size:11px;color:var(--text3)">📍 ${u.loc}</span>
+        <span style="font-size:10px;color:var(--text3)">${u.qs}</span>
+        ${badges.join('')}
+        <span style="font-size:14px;font-weight:700;font-family:var(--mono);color:${chanceColor(u.chance)}">${u.chance}%</span>
+      </div>
+      <div class="uni-chevron">▾</div>
+    </div>
+    <div class="uni-body">
+      <div class="chance-bar-wrap">
+        <span style="font-size:11px;color:var(--text3);width:100px;flex-shrink:0">Admission chance</span>
+        <div class="bar-track" style="height:8px"><div class="bar-fill" style="width:${u.chance}%;background:${chanceColor(u.chance)}"></div></div>
+        <span class="chance-val" style="color:${chanceColor(u.chance)}">${u.chance}%</span>
+      </div>
+      <div class="grid-2 mt-12 mb-12">
+        <div class="info-box">
+          <div class="info-title">Research strengths</div>
+          <ul class="info-list">${u.strengths.map(s=>`<li>${s}</li>`).join('')}</ul>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Language</div>
+          <ul class="info-list"><li>${u.english}</li></ul>
+          <div class="info-title" style="margin-top:8px">Relevant for</div>
+          <ul class="info-list">${u.targets.map(t=>`<li>${t}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="info-box mb-10">
+        <div class="info-title">About this university</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.6">${u.note}</p>
+      </div>
+      <div class="consultant-note cn-blue">
+        <strong>Your strategy: </strong>${u.strategy}
+      </div>
+    </div>
+  </div>`;
+}
+function toggleUni(id) { document.getElementById(id).classList.toggle('open'); }
+
+/* --- SCHOLARSHIP DATA --- */
+const schData = {
+  kr:[
+    { name:'KGSP / GKS — Global Korea Scholarship', sub:'Korean Government Scholarship Program · Administered by NIIED', icon:'🏛', iconBg:'rgba(59,130,246,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'Government',c:'pill-blue'},{l:'Best option',c:'pill-amber'}], deadline:'February – March 2027 (for Sept 2027 intake)', amounts:[{label:'Monthly stipend',val:'₩900,000',inr:'≈ ₹55,000/month'},{label:'Tuition',val:'100% covered',inr:'All semesters'},{label:'Airfare',val:'Round trip',inr:'Covered once'},{label:'Settlement',val:'₩200,000',inr:'One-time on arrival'},{label:'Language training',val:'1 year paid',inr:'Skip with TOPIK 5+'},{label:'Health insurance',val:'Full coverage',inr:'Entire duration'}], cgpa:'Minimum 2.64/4.0 equivalent. Your 7-8 CGPA converts to roughly 3.0-3.5/4.0 — you meet the minimum. Being top 20% of class also qualifies you even if percentile is below 80%.', eligibility:['Must not hold Korean citizenship (or dual citizenship)','Under 40 years of age at time of application','Bachelor\'s degree held or expected before enrollment','Good physical and mental health (medical certificate required)','Citizenship of NIIED-designated country — India is included','Must not have previously received KGSP/GKS scholarship'], documents:['NIIED application form (from studyinkorea.go.kr)','Official transcripts — all semesters, attested','Bachelor\'s degree certificate / provisional certificate','Personal statement and study plan','2 Letters of Recommendation','Medical examination form (all 6 parts)','Passport copy + both parents\' citizenship proof','TOPIK score certificate (optional but gives bonus points)','GRE/language test scores if applicable'], steps:['Download application from studyinkorea.go.kr','Embassy Track: Fill Sakshat Portal (education.gov.in) + physical hard copy to Korean Embassy, New Delhi','University Track: Apply directly to university — they nominate you','Embassy shortlists and interviews candidates (March–April)','NIIED announces final results (May–June)','Language training begins September OR you start MS directly with TOPIK 5+'], tip:'Embassy Track gives you less control over university placement. University Track (apply directly + get nominated) gives you more control. Pursue BOTH simultaneously — apply directly to SKKU/KAIST and also submit KGSP Embassy Track. The TOPIK language bonus + engineering field bonus can add 10-15% to your selection score.', tracks:['Embassy Track — Apply to Korean Embassy New Delhi','University Track — Apply directly, university nominates you'] },
+    { name:'KAIST International Graduate Scholarship (KGPS)', sub:'University-funded · Auto-considered on admission application', icon:'🔬', iconBg:'rgba(16,185,129,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'University',c:'pill-purple'}], deadline:'August–September 2027 (Fall intake application)', amounts:[{label:'Monthly stipend (MS)',val:'₩1,000,000',inr:'≈ ₹61,000/month'},{label:'Tuition',val:'100% covered',inr:'4 semesters for MS'},{label:'Health insurance',val:'Dept-supported',inr:'Covered by advisor'},{label:'RA funding (extra)',val:'₩300–700k extra',inr:'From professor lab'}], cgpa:'No fixed CGPA cutoff — KAIST selects based on research potential. A strong professor relationship + research interest can overcome a 7-8 CGPA. Your engineering background from India is recognized.', eligibility:['International student without Korean citizenship','Bachelor\'s degree for MS program','No separate scholarship application needed — select KGSP option during admission form','Only highly competitive applicants recommended by department head','English proficiency: TOEFL iBT 83+ (waiver if educated in English)','Application fee: $80 USD (non-refundable)'], documents:['KAIST online application form (gradapply.kaist.ac.kr)','Official transcripts + degree certificate','2 Recommendation letters','Statement of purpose / research proposal','TOEFL/IELTS score (or waiver proof)','CV with research experience highlighted','National ID + both parents\' national ID','Up to 3 preferred faculty members listed in application'], steps:['Go to gradapply.kaist.ac.kr and create account','Select "KAIST Scholarship" as financial resource in form','List up to 3 preferred faculty members in your research area','Pay $80 application fee online','Upload all documents electronically','If admitted, scholarship auto-assigned — no separate application'], tip:'The key to KAIST funding is professor pre-contact before applying. If a professor agrees to be your advisor, they can support your stipend from their research grant — this is in ADDITION to the base scholarship. Total monthly support can reach ₩1,500,000–2,000,000 (₹91,000–₹1,22,000) when RA is included. Contact professors first, then apply.', tracks:['Direct university application only — no embassy track'] },
+    { name:'SKKU International Student Scholarship + Samsung RA', sub:'Sungkyunkwan University · Samsung-affiliated research funding', icon:'🏢', iconBg:'rgba(245,158,11,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'University',c:'pill-purple'},{l:'Industry-backed',c:'pill-amber'}], deadline:'October–November 2027 (Spring) / April–May 2027 (Fall)', amounts:[{label:'Tuition',val:'100% covered',inr:'University scholarship'},{label:'Monthly RA stipend',val:'₩800,000–1,200,000',inr:'≈ ₹49,000–73,000'},{label:'Samsung research grant',val:'Additional funding',inr:'Project-based'},{label:'Dormitory subsidy',val:'Partial',inr:'~50% dorm costs'}], cgpa:'SKKU values industry experience heavily. Your internship + PPO are specifically valued for Samsung-affiliated labs. CGPA is less decisive here than at KAIST. A 7-8 CGPA from a recognized Indian university is acceptable.', eligibility:['International applicant with bachelor\'s degree','Accepted into a graduate program at SKKU','RA funding requires professor agreement before or during application','Samsung lab RA requires research interest alignment with Samsung priorities','English proficiency required (TOEFL/IELTS)'], documents:['SKKU graduate application form','Official transcripts','2–3 Letters of Recommendation','Statement of Purpose (customised for SKKU/Samsung lab)','TOEFL/IELTS scores','CV emphasising hardware/industry experience','Research proposal (for Samsung-funded labs)'], steps:['Contact Samsung-affiliated lab professor at SKKU before applying','Apply to SKKU graduate program online','Indicate scholarship interest in application form','Professor nominates you for RA position if research fit confirmed','University scholarship covers tuition automatically for admitted students','Also apply KGSP University Track with SKKU as preferred university'], tip:'SKKU\'s best funding comes from Samsung research grants channelled through professors. A professor working on Samsung Memory or Samsung LSI projects can fund your entire MS with ₩1,000,000–1,500,000/month. This is the path to both free education AND a Samsung job after graduation. Professor pre-contact here is not just helpful — it is the entire strategy.', tracks:['Direct application + KGSP University Track (list SKKU as preference)'] },
+    { name:'UNIST / DGIST / GIST — Government Institute Scholarships', sub:'National science institutes · Automatic funding for all admitted MS students', icon:'⚗', iconBg:'rgba(20,184,166,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'Government',c:'pill-blue'},{l:'Auto-awarded',c:'pill-teal'}], deadline:'Varies by institute — typically August–October for Spring, Feb–April for Fall', amounts:[{label:'Tuition',val:'100% covered',inr:'All admitted students'},{label:'Monthly stipend (UNIST)',val:'₩900,000–1,100,000',inr:'≈ ₹55,000–67,000'},{label:'Monthly stipend (DGIST)',val:'₩900,000+',inr:'≈ ₹55,000+'},{label:'Monthly stipend (GIST)',val:'₩800,000–1,000,000',inr:'≈ ₹49,000–61,000'}], cgpa:'These institutes prioritise research potential over CGPA. Full English campuses. All three auto-fund admitted graduate students — if you get in, you get funded. This is your most reliable fully-funded Korea path.', eligibility:['All international students are funded automatically upon admission','No separate scholarship application required','Bachelor\'s degree required for MS','English proficiency required','UNIST: TOEFL 80+ or IELTS 6.0+','GIST: TOEFL 79+ or IELTS 6.0+'], documents:['Institute-specific application form','Official transcripts and degree certificate','2 Recommendation letters','Research statement / SOP','TOEFL/IELTS score','CV','Preferred advisor name (strongly recommended)'], steps:['Apply directly through each institute\'s online portal','List a preferred research advisor','Submit all documents before deadline','Admission decision includes automatic funding offer','No KGSP track needed — institute provides equivalent funding'], tip:'UNIST, DGIST, and GIST are your insurance policies that pay as well as KAIST. Most Indian applicants only apply to KAIST/SKKU and miss these. If you get into UNIST with ₩1,000,000/month and full tuition covered, you are in the same financial position as a KGSP recipient — but with far less competition for admission.', tracks:['Direct application only — all admitted students auto-funded'] },
+    { name:'UST — University of Science and Technology Scholarship', sub:'32 government research institutes · Unique research-industry hybrid MS', icon:'🔭', iconBg:'rgba(139,92,246,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'Government',c:'pill-blue'}], deadline:'February–March 2027 (annual)', amounts:[{label:'Tuition',val:'100% covered',inr:'Full exemption'},{label:'Monthly stipend',val:'₩1,000,000+',inr:'≈ ₹61,000+'},{label:'Research allowance',val:'Additional',inr:'Project-based grants'},{label:'Health insurance',val:'Full coverage',inr:'Entire duration'}], cgpa:'UST selects based on research institute fit. You are placed in one of 32 government research institutes (ETRI for telecom, KIST for science, KRISS for standards etc.) and do your MS research there. Less academic CGPA focus, more research interest focus.', eligibility:['International students without Korean citizenship','Bachelor\'s degree in relevant field','Interest in government research institute research areas','English or Korean proficiency','Must select a specific institute and research group'], documents:['UST application form','Transcripts and degree certificate','Research proposal aligned with institute\'s work','Recommendation letters','English/Korean proficiency proof'], steps:['Browse 32 research institutes at ust.ac.kr','Contact a researcher at your preferred institute','Apply through UST portal selecting the institute','Interview with institute researcher','If accepted, full funding begins automatically'], tip:'UST is highly underrated. You do your MS research at a government R&D lab — ETRI (electronics & telecom), KERI (electrical research), or KIST (science & tech). These labs work on real national projects. For someone interested in embedded systems + AI hardware + 5G, ETRI specifically is an incredible placement. Less prestigious brand than KAIST on paper, but the research experience is world-class.', tracks:['Direct application through ust.ac.kr'] },
+  ],
+  tw:[
+    { name:'MOE Taiwan Scholarship (Degree Program)', sub:'Ministry of Education · Taiwan\'s primary government scholarship', icon:'🏛', iconBg:'rgba(59,130,246,0.2)', badges:[{l:'Partially funded',c:'pill-amber'},{l:'Government',c:'pill-blue'},{l:'Best Taiwan bet',c:'pill-green'}], deadline:'February 1 – March 31 every year (apply for 2027 cycle in early 2027)', amounts:[{label:'Monthly stipend (MS)',val:'NT$20,000',inr:'≈ ₹52,000/month'},{label:'Tuition per semester',val:'Up to NT$40,000',inr:'≈ ₹1,04,000/semester'},{label:'Tuition top-up',val:'Student pays excess',inr:'If tuition > NT$40k'},{label:'Health insurance',val:'Not covered',inr:'Student responsibility'}], cgpa:'Graduate applicants must meet GPA 3.5/4.5 or equivalent. Your 7-8 CGPA on Indian 10-point scale converts to roughly 3.0-3.5 on 4.5 scale — borderline. A strong SOP, LOR, and professor support can compensate. TECRO does holistic review.', eligibility:['Not a citizen of Taiwan, mainland China, Hong Kong, or Macau','India has non-diplomatic but friendly relations — Indian students are eligible','Apply through TECO (Taipei Economic and Cultural Office) in India — located in Mumbai and Delhi','Must apply to university separately — scholarship and admission are independent','Graduate GPA 3.5/4.5 or equivalent recommended','Cannot hold another government scholarship simultaneously'], documents:['MOE Taiwan Scholarship application form (taiwanscholarship.moe.gov.tw)','Official transcripts — attested','Bachelor\'s degree certificate','2 Reference/recommendation letters — signed and sealed','Study plan / research proposal','TOEFL/IELTS score (for English-taught programs)','Copy of admission application proof (receipt or acknowledgement from university)','Passport copy'], steps:['Apply to university online (NYCU, NTHU, NCKU etc.) — separate from scholarship','Register at taiwanscholarship.moe.gov.tw (open Feb 1–Mar 31)','Complete online scholarship application','Submit hard copy documents to TECO India (Mumbai)','TECO reviews and interviews shortlisted candidates','Results announced by May 31','Submit university admission letter to TECO by June 30 to secure scholarship'], tip:'The scholarship and university admission are completely separate processes running in parallel. Apply to NYCU/NTHU in November–December 2026, and apply for MOE scholarship in February 2027. You need BOTH to succeed. If you get the scholarship but not admission by June 30, you lose the scholarship. Start both simultaneously.', tracks:['Apply through TECO India office — Mumbai or Delhi','Apply directly to university in parallel'] },
+    { name:'NYCU College of EECS International Scholarship', sub:'National Yang Ming Chiao Tung University · Direct department funding', icon:'🏫', iconBg:'rgba(16,185,129,0.2)', badges:[{l:'Fully funded',c:'pill-green'},{l:'University',c:'pill-purple'},{l:'Top priority',c:'pill-teal'}], deadline:'November–December 2026 (for September 2027 intake)', amounts:[{label:'Tuition waiver',val:'100% covered',inr:'Full exemption'},{label:'Monthly RA stipend',val:'NT$10,000–22,000',inr:'≈ ₹26,000–57,000'},{label:'Professor lab funding',val:'Additional',inr:'Research project grants'},{label:'MOE scholarship combo',val:'Can stack',inr:'Up to NT$42,000/month'}], cgpa:'NYCU EECS focuses on research fit and professor interest. Your embedded systems + hardware background is directly relevant to their SoC and VLSI labs. Professor pre-contact is the key — a professor\'s interest overrides CGPA concerns in most cases.', eligibility:['International students admitted to NYCU graduate programs','RA funding requires professor agreement','Strong research proposal aligned with EECS lab work','English proficiency required','No separate scholarship application — professor assigns RA after admission'], documents:['NYCU graduate application form','Official transcripts','Recommendation letters (2-3)','Research statement / SOP','TOEFL/IELTS scores','CV with hardware project portfolio','Professor pre-contact email thread (informal but essential)'], steps:['Email NYCU EECS professors in your area (VLSI, SoC, embedded AI)','Apply to NYCU graduate program online','Professor confirms RA position to department','University admission = automatic tuition waiver consideration','Apply MOE scholarship simultaneously for monthly stipend top-up','Combined RA + MOE can yield NT$30,000–42,000/month fully covered'], tip:'NYCU is literally surrounded by MediaTek, Realtek, Novatek, and Silicon Motion. Professors here often have direct industry funding from these companies. An RA at a MediaTek-funded NYCU lab means your research is on real chip problems AND you get a direct pipeline to MediaTek internship and job offers. This is the single best industry-to-academia-to-industry pipeline in Taiwan for your specialisation.', tracks:['Direct application to NYCU + MOE scholarship in parallel'] },
+    { name:'NTHU International Student Scholarship', sub:'National Tsing Hua University · Also in Hsinchu', icon:'⚛', iconBg:'rgba(245,158,11,0.2)', badges:[{l:'Funded',c:'pill-green'},{l:'University',c:'pill-purple'}], deadline:'November–January for Spring/Fall 2027 intake', amounts:[{label:'Tuition waiver',val:'Possible',inr:'Depends on professor/dept'},{label:'Monthly RA',val:'NT$8,000–18,000',inr:'≈ ₹21,000–47,000'},{label:'MOE scholarship',val:'Stackable',inr:'Apply separately'},{label:'NTHU own scholarship',val:'NT$10,000–15,000',inr:'≈ ₹26,000–39,000'}], cgpa:'NTHU has a rigorous admissions process but values research quality. In the EE department, professors have significant say in funding and admission. A strong professor contact = strong admission + funding probability.', eligibility:['Non-Taiwanese international student','Bachelor\'s degree in relevant field','English or Mandarin proficiency','Preferred professor contact before applying','Research proposal required for funded positions'], documents:['NTHU online application','Transcripts + degree certificate','2 Recommendation letters','Research proposal','TOEFL/IELTS score','CV'], steps:['Contact NTHU EE department professors in your research area','Apply online to NTHU','Apply MOE scholarship simultaneously','Professor confirms funding after admission'], tip:'NTHU and NYCU are in the same city (Hsinchu) — apply to both. Your application effort doubles your chances while barely doubling your work since the SOP structure is almost identical. NTHU has slightly stronger photonics and devices research; NYCU stronger in SoC design.', tracks:['Direct application + MOE scholarship in parallel'] },
+    { name:'NCKU International Research Scholarship', sub:'National Cheng Kung University · Tainan Science Park location', icon:'🔧', iconBg:'rgba(20,184,166,0.2)', badges:[{l:'Funded',c:'pill-green'},{l:'University',c:'pill-purple'}], deadline:'October–December 2026 for Fall 2027 intake', amounts:[{label:'Tuition waiver',val:'Full or partial',inr:'Professor dependent'},{label:'Monthly stipend',val:'NT$8,000–16,000',inr:'≈ ₹21,000–42,000'},{label:'MOE scholarship',val:'Stackable',inr:'NT$20,000/month extra'},{label:'TSMC proximity',val:'Internship pipeline',inr:'Direct recruitment'}], cgpa:'NCKU is more accessible than NYCU/NTHU for Indian applicants. Strong focus on applied engineering. Your hardware internship background is directly valued here — more so than at pure research universities.', eligibility:['International students admitted to NCKU','Relevant bachelor\'s degree','English proficiency for English-medium programs','Applied engineering background preferred for industry-linked labs'], documents:['NCKU online application','Transcripts + certificates','2-3 LORs','SOP (can be more applied/industry-focused for NCKU)','TOEFL/IELTS','CV'], steps:['Apply to NCKU Department of Electrical Engineering','Contact professors in microelectronics or embedded systems labs','Apply MOE scholarship simultaneously','NCKU is near TSMC Tainan Science Park — mention this in SOP'], tip:'NCKU is your best Taiwan backup after NYCU/NTHU. Tainan Science Park hosts TSMC Phase 3, 5, and 6 fabs. NCKU engineers regularly intern and get placed at TSMC Tainan. If your goal is to work in Taiwan long-term in semiconductor fab, NCKU has the strongest TSMC pipeline outside Hsinchu.', tracks:['Direct application + MOE scholarship in parallel'] },
+  ]
+};
+
+let schCountry = 'kr';
+function setSchCountry(c,el) {
+  schCountry=c;
+  document.querySelectorAll('#sch-country-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderScholarships();
+}
+function renderScholarships() {
+  const list = schData[schCountry];
+  document.getElementById('sch-list').innerHTML = list.map((s,i)=>`
+    <div class="sch-card ${i===0?'open':''}">
+      <div class="sch-head" onclick="toggleSch(this)">
+        <div class="sch-icon" style="background:${s.iconBg};font-size:20px">${s.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600;color:var(--text1);margin-bottom:3px">${s.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:6px">${s.sub}</div>
+          <div class="flex flex-wrap gap-6">${s.badges.map(b=>`<span class="pill ${b.c}" style="font-size:10px">${b.l}</span>`).join('')}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);transition:transform .2s;flex-shrink:0;padding-top:2px" class="sch-chevron">▾</div>
+      </div>
+      <div class="sch-body">
+        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:14px;font-size:12px;color:#fca5a5">
+          <strong>Deadline:</strong> ${s.deadline}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:14px">
+          ${s.amounts.map(a=>`<div class="money-card"><div class="money-label">${a.label}</div><div class="money-val">${a.val}</div><div class="money-inr">${a.inr}</div></div>`).join('')}
+        </div>
+        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;font-size:12px;color:#6ee7b7;line-height:1.5">
+          <strong>Your CGPA eligibility: </strong>${s.cgpa}
+        </div>
+        <div class="grid-2 mb-14">
+          <div class="info-box">
+            <div class="info-title">Eligibility criteria</div>
+            <ul class="info-list">${s.eligibility.map(e=>`<li>${e}</li>`).join('')}</ul>
+          </div>
+          <div class="info-box">
+            <div class="info-title">Documents required</div>
+            <ul class="info-list">${s.documents.map(d=>`<li>${d}</li>`).join('')}</ul>
+          </div>
+        </div>
+        <div class="info-box mb-12">
+          <div class="info-title">Step-by-step application process</div>
+          <ol class="step-list">${s.steps.map((st,j)=>`<li><span class="step-num">${j+1}</span><span>${st}</span></li>`).join('')}</ol>
+        </div>
+        <div class="info-box mb-12">
+          <div class="info-title">Application tracks</div>
+          <ul class="info-list">${s.tracks.map(t=>`<li>${t}</li>`).join('')}</ul>
+        </div>
+        <div class="consultant-note cn-blue"><strong>Consultant tip: </strong>${s.tip}</div>
+      </div>
+    </div>`).join('');
+}
+function toggleSch(head) {
+  const card = head.closest('.sch-card');
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.sch-card').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen) card.classList.add('open');
+  const chev = head.querySelector('.sch-chevron');
+  document.querySelectorAll('.sch-chevron').forEach(c=>c.style.transform='');
+  if(card.classList.contains('open')) chev.style.transform='rotate(180deg)';
+}
+
+/* INIT */
+renderSpecs();
+showSpec('soc');
+renderCountryTabs();
+renderCountryDetail();
+renderUniFilters();
+renderUnis();
+renderScholarships();
+</script>
+</body>
+</html>
